@@ -8,6 +8,7 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.scoreboard.Scoreboard;
+import net.minecraft.scoreboard.ScoreboardCriterion;
 import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.text.LiteralText;
 import org.spongepowered.asm.mixin.Final;
@@ -68,10 +69,14 @@ public abstract class PlayerListHudMixin extends DrawableHelper {
 
     @ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/PlayerListHud;renderScoreboardObjective(Lnet/minecraft/scoreboard/ScoreboardObjective;ILjava/lang/String;IILnet/minecraft/client/network/PlayerListEntry;Lnet/minecraft/client/util/math/MatrixStack;)V"))
     private void renderScoreboard(Args args) {
+        ScoreboardObjective objective = args.get(0);
+
         int startX = args.get(3);
         int endX = args.get(4);
 
-        args.set(3, startX - pingWidth);
+        if (objective.getRenderType() != ScoreboardCriterion.RenderType.HEARTS)
+            args.set(3, startX - pingWidth);
+
         args.set(4, endX - pingWidth);
     }
 
