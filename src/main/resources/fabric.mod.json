@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "pingdisplay",
+  "version": "${version}",
+
+  "name": "Ping Display",
+  "description": "Replaces the ping icon on tablist with a number display",
+  "authors": [
+    "Francy-Chan"
+  ],
+  "contact": {
+    "homepage": "https://github.com/Kingdom-of-Moon/Pingdisplay/",
+    "sources": "https://github.com/Kingdom-of-Moon/Pingdisplay/",
+    "issues": "https://github.com/Kingdom-of-Moon/Pingdisplay/issues"
+  },
+
+  "license": "LGPL-2.1",
+  "icon": "assets/pingdisplay/icon.png",
+
+  "environment": "client",
+  "entrypoints": {
+    "client": []
+  },
+  "mixins": [
+    "pingdisplay.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "minecraft": ">=1.17",
+    "java": ">=16"
+  },
+  "custom": {}
+}
