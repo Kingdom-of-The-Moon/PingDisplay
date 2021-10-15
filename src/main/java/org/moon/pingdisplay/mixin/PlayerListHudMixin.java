@@ -64,7 +64,7 @@ public abstract class PlayerListHudMixin extends DrawableHelper {
 
     @ModifyVariable(method = "render", at = @At("STORE"), ordinal = 6)
     private int changeListWidth(int r) {
-        return r + pingWidth;
+        return r + pingWidth - (this.client.isInSingleplayer() || this.client.getNetworkHandler().getConnection().isEncrypted() ? 9 : 0);
     }
 
     @ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/PlayerListHud;renderScoreboardObjective(Lnet/minecraft/scoreboard/ScoreboardObjective;ILjava/lang/String;IILnet/minecraft/client/network/PlayerListEntry;Lnet/minecraft/client/util/math/MatrixStack;)V"))
@@ -74,10 +74,10 @@ public abstract class PlayerListHudMixin extends DrawableHelper {
         int startX = args.get(3);
         int endX = args.get(4);
 
-        if (objective.getRenderType() != ScoreboardCriterion.RenderType.HEARTS)
-            args.set(3, startX - pingWidth);
+        int offset = (this.client.isInSingleplayer() || this.client.getNetworkHandler().getConnection().isEncrypted() ? 9 : 0);
 
-        args.set(4, endX - pingWidth);
+        args.set(3, startX + (objective.getRenderType() != ScoreboardCriterion.RenderType.HEARTS ? -pingWidth + offset : 2));
+        args.set(4, endX - pingWidth + offset);
     }
 
     @Inject(method = "renderLatencyIcon", at = @At("HEAD"), cancellable = true)
@@ -93,7 +93,7 @@ public abstract class PlayerListHudMixin extends DrawableHelper {
         }
         else if (latency < 0)
             color = 0x5B5B5B;
-        else if (latency < 100)
+        else if (latency < 125)
             color = 0x00FF21;
         else if (latency < 250)
             color = 0x9EFF00;
