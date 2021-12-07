@@ -11,6 +11,7 @@ import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.ScoreboardCriterion;
 import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.text.LiteralText;
+import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,6 +23,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
+import java.awt.Color;
 import java.util.List;
 
 @Mixin(PlayerListHud.class)
@@ -91,25 +93,42 @@ public abstract class PlayerListHudMixin extends DrawableHelper {
             color = 0xFF72B7;
             inf = true;
         }
-        else if (latency < 0)
+        else if (latency < 0) // < 0
             color = 0x5B5B5B;
-        else if (latency < 125)
-            color = 0x00FF21;
-        else if (latency < 250)
-            color = 0x9EFF00;
-        else if (latency < 500)
-            color = 0xDEFF00;
-        else if (latency < 1000)
-            color = 0xFFA100;
-        else if (latency > 9999) {
+        else if (latency < 150) // 0 - 150
+            color = lerpColor(0x00FF21, 0x9EFF00, getPercentage(0, 150, latency));
+        else if (latency < 300) // 150 - 300
+            color = lerpColor(0x9EFF00, 0xDEFF00, getPercentage(150, 300, latency));
+        else if (latency < 650) // 300 - 650
+            color = lerpColor(0xDEFF00, 0xFFA100, getPercentage(300, 650, latency));
+        else if (latency < 1000) // 650 - 1000
+            color = lerpColor(0xFFA100, 0xFF2100, getPercentage(650, 1000, latency));
+        else if (latency > 9999) { // > 9999
             latency = 9999;
             color = 0xFF72B7;
             plus = true;
         }
-        else
+        else // 1000 - 9999
             color = 0xFF2100;
 
         drawTextWithShadow(matrices, this.client.textRenderer, new LiteralText(inf ? ":3" : latency + (plus ? "+" : "") + "ms"), x + width - pingWidth, y, color);
         ci.cancel();
+    }
+
+    @Unique
+    private static int lerpColor(int colorA, int colorB, float lerp) {
+        Color x = new Color(colorA);
+        Color y = new Color(colorB);
+
+        float r = MathHelper.lerp(lerp, x.getRed(), y.getRed());
+        float g = MathHelper.lerp(lerp, x.getGreen(), y.getGreen());
+        float b = MathHelper.lerp(lerp, x.getBlue(), y.getBlue());
+
+        return new Color(r / 255f, g / 255f, b / 255f).getRGB();
+    }
+
+    @Unique
+    private static float getPercentage(float min, float max, float input) {
+        return (input - min) / (max - min);
     }
 }
